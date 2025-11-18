@@ -1,0 +1,122 @@
+### Test Create User - Valid Request
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "johndoe2@example.com",
+  "name": "J j          "
+}
+
+###
+
+### Test Create User - Invalid Email
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "invalid-email",
+  "name": "h   "
+}
+
+###
+
+### Test Create User - Missing Required Email
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "name": "John Doe"
+}
+
+###
+
+### Test Create User - Name Too Short
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "name": "J"
+}
+
+###
+
+### Test Create User - Name Too Long
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "name": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat"
+}
+
+###
+
+### Test Create User - Unknown Fields (Should be rejected)
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "name": "John Doe",
+  "unknownField": "This should be rejected",
+  "anotherUnknownField": 123
+}
+
+###
+
+### Test Create User - Whitespace Handling
+POST http://localhost:8000/api/v1/user
+Content-Type: application/json
+
+{
+  "email": "  test@example.com  ",
+  "name": "  Test User  "
+}
+
+###
+
+### Test Update User - Valid Request
+PUT http://localhost:8000/api/v1/user/clg1234567890
+Content-Type: application/json
+
+{
+  "name": "Jane Doe Updated"
+}
+
+###
+
+### Test Update User - Invalid Email
+PUT http://localhost:8000/api/v1/user/clg1234567890
+Content-Type: application/json
+
+{
+  "email": "invalid-email-format"
+}
+
+###
+
+### Test Update User - Partial Update (only email)
+PUT http://localhost:8000/api/v1/user/clg1234567890
+Content-Type: application/json
+
+{
+  "email": "newemail@example.com"
+}
+
+###
+
+### Test Get All Users
+GET http://localhost:8000/api/v1/user
+
+###
+
+### Test Get User by ID - Valid
+GET http://localhost:8000/api/v1/user/clg1234567890
+
+###
+
+### Test Get User by ID - Not Found
+GET http://localhost:8000/api/v1/user/non-existent-id
+
+###
