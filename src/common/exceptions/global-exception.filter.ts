@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Prisma } from 'generated/prisma';
-import z from 'zod';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -42,20 +41,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         success: false,
         message,
         errors: errors ?? exception,
-        timestamp: new Date().toISOString(),
-        path: request.url,
-      });
-    }
-
-    if (exception instanceof z.ZodError) {
-      status = HttpStatus.BAD_REQUEST;
-      message = 'Validation failed';
-      errors = z.prettifyError(exception);
-
-      return response.status(status).json({
-        success: false,
-        message,
-        errors,
         timestamp: new Date().toISOString(),
         path: request.url,
       });

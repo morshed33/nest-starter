@@ -9,7 +9,7 @@ This is a **NestJS REST API** with **Prisma ORM** and **PostgreSQL**, following 
 - **Custom Prisma Output Path**: Generated client lives in `generated/prisma/` (not default `node_modules`). Import from `generated/prisma`, not `@prisma/client`.
 - **Centralized Response Format**: All endpoints use `ApiResponse<T>` interface with `success`, `message`, `data`, `timestamp` fields. Enforced by `ResponseInterceptor`.
 - **Global Exception Handling**: `GlobalExceptionFilter` transforms Prisma errors (P2002 unique constraint) and Zod errors into consistent API responses.
-- **Config Validation**: `app.config.ts` and `db.config.ts` use **Zod schemas** to validate environment variables at startup. App crashes early if required vars are missing.
+- **Config Validation**: `app.config.ts` and `db.config.ts` use custom validation functions to validate environment variables at startup. App crashes early if required vars are missing.
 
 ## Development Workflow
 

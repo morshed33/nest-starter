@@ -1,39 +1,70 @@
-import { z } from 'zod';
+interface AppConfig {
+  nodeEnv: 'development' | 'production' | 'staging' | 'test';
+  port: number;
+  jwtSecret: string;
+  corsOrigin: string;
+}
 
-const appConfigSchema = z.object({
-  nodeEnv: z
-    .enum(['development', 'production', 'staging', 'test'])
-    .default('development'),
-  port: z.preprocess(
-    (val) => (typeof val === 'string' ? Number(val) : val),
-    z.number().int().positive().default(3000),
-  ),
-  jwtSecret: z.string().min(16),
-  corsOrigin: z.url(),
-});
+const VALID_NODE_ENVS: AppConfig['nodeEnv'][] = [
+  'development',
+  'production',
+  'staging',
+  'test',
+];
 
-const rawAppConfig = {
-  nodeEnv: process.env.NODE_ENV,
-  port: process.env.PORT,
-  jwtSecret: process.env.JWT_SECRET,
-  corsOrigin: process.env.CORS_ORIGIN,
-};
+function validateAppConfig(env: Record<string, unknown>): AppConfig {
+  const errors: string[] = [];
 
-let appConfig: z.infer<typeof appConfigSchema>;
+  const nodeEnv = (env.NODE_ENV as AppConfig['nodeEnv']) || 'development';
+  const port = Number(env.PORT);
+  const jwtSecret = env.JWT_SECRET as string;
+  const corsOrigin = env.CORS_ORIGIN as string;
+
+  if (!VALID_NODE_ENVS.includes(nodeEnv)) {
+    errors.push(
+      `NODE_ENV must be one of: ${VALID_NODE_ENVS.join(', ')} (received: ${nodeEnv})`,
+    );
+  }
+
+  if (!Number.isInteger(port) || port <= 0) {
+    errors.push(`PORT must be a positive integer (received: ${port})`);
+  }
+
+  if (!jwtSecret || typeof jwtSecret !== 'string' || jwtSecret.length < 16) {
+    errors.push(`JWT_SECRET must be a string with at least 16 characters`);
+  }
+
+  if (!corsOrigin || typeof corsOrigin !== 'string') {
+    errors.push(`CORS_ORIGIN is required and must be a string`);
+  } else {
+    try {
+      new URL(corsOrigin);
+    } catch {
+      errors.push(`CORS_ORIGIN must be a valid URL (received: ${corsOrigin})`);
+    }
+  }
+
+  if (errors.length) {
+    throw new Error(`Invalid configuration:\n- ${errors.join('\n- ')}`);
+  }
+
+  return {
+    nodeEnv,
+    port,
+    jwtSecret,
+    corsOrigin,
+  };
+}
+
+let appConfig: AppConfig;
 
 try {
-  appConfig = appConfigSchema.parse(rawAppConfig);
-} catch (error) {
-  if (error instanceof z.ZodError) {
-    console.error('❌ Invalid app configuration:');
-    for (const issue of error.issues) {
-      console.error(`- ${issue.path.join('.')} : ${issue.message}`);
-    }
-    process.exit(1);
-  }
-  throw error;
+  appConfig = validateAppConfig(process.env);
+} catch (err) {
+  console.error('❌ Invalid app configuration:');
+  console.error((err as Error).message);
+  process.exit(1);
 }
 
 export { appConfig };
-
-export type AppConfig = z.infer<typeof appConfigSchema>;
+export type { AppConfig };
