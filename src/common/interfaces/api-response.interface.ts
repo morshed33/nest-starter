@@ -1,5 +1,6 @@
-export interface ApiResponse<T> {
+export interface AppResponse<T> {
   success: boolean;
+  statusCode: number;
   message: string;
   data?: T;
   meta?: PaginationMeta;
@@ -14,3 +15,5 @@ export interface PaginationMeta {
   hasNextPage: boolean;
   hasPreviousPage: boolean;
 }
+
+export type ApiResponse<T> = AppResponse<T>;

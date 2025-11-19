@@ -1,11 +1,11 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { appConfig } from './config';
 import helmet from 'helmet';
 import { GlobalExceptionFilter } from './common/exceptions/global-exception.filter';
 import { ResponseInterceptor } from './common/interceptor/response.interceptor';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { validationPipeConfig } from './common/validators/validation-pipe.config';
 
 async function bootstrap() {
@@ -45,6 +45,12 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
 
   app.useGlobalInterceptors(new ResponseInterceptor());
+
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      // strategy: 'exposeAll',
+    }),
+  );
 
   await app.listen(appConfig.port);
 
